@@ -115,7 +115,7 @@ export default function CareersPageClient({ company }: CareersPageClientProps) {
             </div>
             <div className="flex items-center gap-4" style={{ fontFamily }}>
               {company.theme?.headerLinks && company.theme.headerLinks.length > 0 ? (
-                company.theme.headerLinks.map((link, index) => (
+                (company.theme.headerLinks as Array<{label: string, url: string}>).map((link, index) => (
                   <a key={index} href={link.url} className="text-gray-700 hover:text-gray-900" style={{ fontFamily }}>
                     {link.label}
                   </a>
@@ -382,7 +382,7 @@ export default function CareersPageClient({ company }: CareersPageClientProps) {
               <h3 className="font-semibold mb-3" style={{ fontFamily }}>Quick Links</h3>
               <ul className="space-y-2 text-sm text-muted-foreground">
                 {company.theme?.footerLinks && company.theme.footerLinks.length > 0 ? (
-                  company.theme.footerLinks.map((link, index) => (
+                  (company.theme.footerLinks as Array<{label: string, url: string}>).map((link, index) => (
                     <li key={index}>
                       <a href={link.url} className="hover:text-gray-900" style={{ fontFamily }}>{link.label}</a>
                     </li>
