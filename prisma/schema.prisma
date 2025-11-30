@@ -1,0 +1,142 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+  directUrl = env("DATABASE_URL")
+}
+
+model User {
+  id            String    @id @default(cuid())
+  email         String    @unique
+  password      String
+  name          String?
+  role          Role      @default(RECRUITER)
+  companyId     String?   @map("company_id")
+  company       Company?  @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  createdAt     DateTime  @default(now()) @map("created_at")
+  updatedAt     DateTime  @updatedAt @map("updated_at")
+
+  @@map("users")
+}
+
+enum Role {
+  RECRUITER
+  ADMIN
+}
+
+model Company {
+  id            String        @id @default(cuid())
+  slug          String        @unique
+  name          String
+  description   String?
+  isPublished   Boolean       @default(false) @map("is_published")
+  users         User[]
+  theme         CompanyTheme?
+  sections      PageSection[]
+  jobs          Job[]
+  createdAt     DateTime      @default(now()) @map("created_at")
+  updatedAt     DateTime      @updatedAt @map("updated_at")
+
+  @@map("companies")
+}
+
+model CompanyTheme {
+  id              String   @id @default(cuid())
+  companyId       String   @unique @map("company_id")
+  company         Company  @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  primaryColor    String   @default("#3B82F6") @map("primary_color")
+  secondaryColor  String   @default("#1E40AF") @map("secondary_color")
+  backgroundColor String   @default("#FFFFFF") @map("background_color")
+  logoUrl         String?  @map("logo_url")
+  bannerUrl       String?  @map("banner_url")
+  bannerUrls      Json?    @map("banner_urls") // Array of banner URLs for carousel
+  autoRotate      Boolean  @default(true) @map("auto_rotate") // Auto-rotate banners
+  rotationInterval Int     @default(2000) @map("rotation_interval") // Milliseconds between rotations
+  videoUrl        String?  @map("video_url")
+  headerLinks     Json?    @map("header_links") // Array of {label, url} for navigation
+  footerText      String?  @db.Text @map("footer_text") // Custom footer text
+  footerLinks     Json?    @map("footer_links") // Array of {label, url} for footer links
+  fontFamily      String   @default("Inter") @map("font_family") // Font family
+  fontSize        String   @default("16px") @map("font_size") // Base font size
+  createdAt       DateTime @default(now()) @map("created_at")
+  updatedAt       DateTime @updatedAt @map("updated_at")
+
+  @@map("company_themes")
+}
+
+model PageSection {
+  id           String        @id @default(cuid())
+  companyId    String        @map("company_id")
+  company      Company       @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  type         SectionType
+  title        String
+  content      Json          // Flexible JSON to store different section content
+  layout       SectionLayout @default(FULL_WIDTH)
+  order        Int           @default(0)
+  columnGroup  Int           @default(0) @map("column_group") // Group sections together horizontally
+  columnIndex  Int           @default(0) @map("column_index") // Position within the group (0 = left, 1 = middle, 2 = right)
+  isVisible    Boolean       @default(true) @map("is_visible")
+  createdAt    DateTime      @default(now()) @map("created_at")
+  updatedAt    DateTime      @updatedAt @map("updated_at")
+
+  @@index([companyId, order])
+  @@index([companyId, columnGroup, columnIndex])
+  @@map("page_sections")
+}
+
+enum SectionType {
+  HERO
+  ABOUT
+  CULTURE
+  VALUES
+  BENEFITS
+  TEAM
+  TESTIMONIALS
+  CUSTOM
+}
+
+enum SectionLayout {
+  FULL_WIDTH
+  TWO_COLUMN
+  THREE_COLUMN
+}
+
+model Job {
+  id            String      @id @default(cuid())
+  companyId     String      @map("company_id")
+  company       Company     @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  title         String
+  department    String?
+  location      String
+  locationType  LocationType @default(HYBRID) @map("location_type")
+  jobType       JobType     @default(FULL_TIME) @map("job_type")
+  description   String      @db.Text
+  requirements  String?     @db.Text
+  salary        String?
+  isActive      Boolean     @default(true) @map("is_active")
+  postedAt      DateTime    @default(now()) @map("posted_at")
+  createdAt     DateTime    @default(now()) @map("created_at")
+  updatedAt     DateTime    @updatedAt @map("updated_at")
+
+  @@index([companyId, isActive])
+  @@map("jobs")
+}
+
+enum LocationType {
+  REMOTE
+  ONSITE
+  HYBRID
+}
+
+enum JobType {
+  FULL_TIME
+  PART_TIME
+  CONTRACT
+  INTERNSHIP
+}

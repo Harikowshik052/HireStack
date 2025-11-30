@@ -1,0 +1,3 @@
+# Vercel Configuration
+VERCEL="1"
+VERCEL_ENV="production"
