@@ -845,7 +845,7 @@ export default function EditorClient({ company: initialCompany }: EditorClientPr
                             placeholder="Label (e.g., About Us)"
                             value={link.label}
                             onChange={(e) => {
-                              const links = [...(company.theme?.headerLinks || [])]
+                              const links = [...((company.theme?.headerLinks || []) as Array<{label: string, url: string}>)]
                               links[index].label = e.target.value
                               handleThemeChange('headerLinks', links)
                             }}
@@ -855,7 +855,7 @@ export default function EditorClient({ company: initialCompany }: EditorClientPr
                             placeholder="URL (e.g., #about)"
                             value={link.url}
                             onChange={(e) => {
-                              const links = [...(company.theme?.headerLinks || [])]
+                              const links = [...((company.theme?.headerLinks || []) as Array<{label: string, url: string}>)]
                               links[index].url = e.target.value
                               handleThemeChange('headerLinks', links)
                             }}
@@ -865,7 +865,7 @@ export default function EditorClient({ company: initialCompany }: EditorClientPr
                             variant="ghost"
                             size="sm"
                             onClick={() => {
-                              const links = (company.theme?.headerLinks || []).filter((_, i) => i !== index)
+                              const links = ((company.theme?.headerLinks || []) as Array<{label: string, url: string}>).filter((_, i) => i !== index)
                               handleThemeChange('headerLinks', links)
                             }}
                           >
@@ -877,7 +877,7 @@ export default function EditorClient({ company: initialCompany }: EditorClientPr
                         variant="outline"
                         size="sm"
                         onClick={() => {
-                          const links = [...(company.theme?.headerLinks || []), { label: '', url: '' }]
+                          const links = [...((company.theme?.headerLinks || []) as Array<{label: string, url: string}>), { label: '', url: '' }]
                           handleThemeChange('headerLinks', links)
                         }}
                       >
@@ -908,7 +908,7 @@ export default function EditorClient({ company: initialCompany }: EditorClientPr
                             placeholder="Label (e.g., Privacy Policy)"
                             value={link.label}
                             onChange={(e) => {
-                              const links = [...(company.theme?.footerLinks || [])]
+                              const links = [...((company.theme?.footerLinks || []) as Array<{label: string, url: string}>)]
                               links[index].label = e.target.value
                               handleThemeChange('footerLinks', links)
                             }}
@@ -918,7 +918,7 @@ export default function EditorClient({ company: initialCompany }: EditorClientPr
                             placeholder="URL (e.g., /privacy)"
                             value={link.url}
                             onChange={(e) => {
-                              const links = [...(company.theme?.footerLinks || [])]
+                              const links = [...((company.theme?.footerLinks || []) as Array<{label: string, url: string}>)]
                               links[index].url = e.target.value
                               handleThemeChange('footerLinks', links)
                             }}
@@ -928,7 +928,7 @@ export default function EditorClient({ company: initialCompany }: EditorClientPr
                             variant="ghost"
                             size="sm"
                             onClick={() => {
-                              const links = (company.theme?.footerLinks || []).filter((_, i) => i !== index)
+                              const links = ((company.theme?.footerLinks || []) as Array<{label: string, url: string}>).filter((_, i) => i !== index)
                               handleThemeChange('footerLinks', links)
                             }}
                           >
@@ -940,7 +940,7 @@ export default function EditorClient({ company: initialCompany }: EditorClientPr
                         variant="outline"
                         size="sm"
                         onClick={() => {
-                          const links = [...(company.theme?.footerLinks || []), { label: '', url: '' }]
+                          const links = [...((company.theme?.footerLinks || []) as Array<{label: string, url: string}>), { label: '', url: '' }]
                           handleThemeChange('footerLinks', links)
                         }}
                       >
