@@ -1,4 +1,4 @@
-import { PrismaClient } from '@prisma/client'
+import { PrismaClient, SectionType } from '@prisma/client'
 import { hash } from 'bcryptjs'
 
 const prisma = new PrismaClient()
@@ -57,7 +57,7 @@ async function main() {
   const sections = [
     {
       companyId: company.id,
-      type: 'ABOUT',
+      type: SectionType.ABOUT,
       title: 'About Us',
       layout: 'FULL_WIDTH',
       content: {
@@ -70,7 +70,7 @@ async function main() {
     },
     {
       companyId: company.id,
-      type: 'CULTURE',
+      type: SectionType.CULTURE,
       title: 'Life at TechCorp',
       layout: 'FULL_WIDTH',
       content: {
@@ -83,7 +83,7 @@ async function main() {
     },
     {
       companyId: company.id,
-      type: 'BENEFITS',
+      type: SectionType.BENEFITS,
       title: 'Benefits & Perks',
       layout: 'FULL_WIDTH',
       content: {
@@ -96,7 +96,7 @@ async function main() {
     },
     {
       companyId: company.id,
-      type: 'CUSTOM',
+      type: SectionType.CUSTOM,
       title: 'Work Environment',
       layout: 'FULL_WIDTH',
       content: {
