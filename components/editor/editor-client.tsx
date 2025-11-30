@@ -43,13 +43,13 @@ interface Theme {
   backgroundColor: string
   logoUrl: string | null
   bannerUrl: string | null
-  bannerUrls: string[] | null
+  bannerUrls: any
   autoRotate: boolean
   rotationInterval: number
   videoUrl: string | null
-  headerLinks: Array<{label: string, url: string}> | null
+  headerLinks: any
   footerText: string | null
-  footerLinks: Array<{label: string, url: string}> | null
+  footerLinks: any
   fontFamily: string
   fontSize: string
 }
