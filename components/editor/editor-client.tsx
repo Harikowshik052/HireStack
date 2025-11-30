@@ -839,7 +839,7 @@ export default function EditorClient({ company: initialCompany }: EditorClientPr
                       <p className="text-xs text-muted-foreground mb-2">
                         Add navigation links to appear in the header (e.g., About Us, Contact)
                       </p>
-                      {(company.theme?.headerLinks || []).map((link, index) => (
+                      {((company.theme?.headerLinks || []) as Array<{label: string, url: string}>).map((link, index) => (
                         <div key={index} className="flex gap-2">
                           <Input
                             placeholder="Label (e.g., About Us)"
@@ -902,7 +902,7 @@ export default function EditorClient({ company: initialCompany }: EditorClientPr
                       <p className="text-xs text-muted-foreground mb-2">
                         Add links to appear in the footer (e.g., Privacy Policy, Terms)
                       </p>
-                      {(company.theme?.footerLinks || []).map((link, index) => (
+                      {((company.theme?.footerLinks || []) as Array<{label: string, url: string}>).map((link, index) => (
                         <div key={index} className="flex gap-2">
                           <Input
                             placeholder="Label (e.g., Privacy Policy)"
