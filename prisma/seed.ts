@@ -1,4 +1,4 @@
-import { PrismaClient, SectionType } from '@prisma/client'
+import { PrismaClient, SectionType, SectionLayout } from '@prisma/client'
 import { hash } from 'bcryptjs'
 
 const prisma = new PrismaClient()
@@ -59,7 +59,7 @@ async function main() {
       companyId: company.id,
       type: SectionType.ABOUT,
       title: 'About Us',
-      layout: 'FULL_WIDTH',
+      layout: SectionLayout.FULL_WIDTH,
       content: {
         html: '<p>TechCorp Solutions is a leading technology company dedicated to creating innovative solutions that transform businesses. With over 10 years of experience, we pride ourselves on our cutting-edge technology and exceptional team culture.</p>',
       },
@@ -72,7 +72,7 @@ async function main() {
       companyId: company.id,
       type: SectionType.CULTURE,
       title: 'Life at TechCorp',
-      layout: 'FULL_WIDTH',
+      layout: SectionLayout.FULL_WIDTH,
       content: {
         html: '<p>At TechCorp, we believe in work-life balance, continuous learning, and innovation. Our team members enjoy flexible working hours, remote work options, and a collaborative environment where ideas flourish.</p>',
       },
@@ -85,7 +85,7 @@ async function main() {
       companyId: company.id,
       type: SectionType.BENEFITS,
       title: 'Benefits & Perks',
-      layout: 'FULL_WIDTH',
+      layout: SectionLayout.FULL_WIDTH,
       content: {
         html: '<ul><li>Competitive salary and equity packages</li><li>Health, dental, and vision insurance</li><li>Flexible PTO policy</li><li>401k matching</li></ul>',
       },
@@ -98,7 +98,7 @@ async function main() {
       companyId: company.id,
       type: SectionType.CUSTOM,
       title: 'Work Environment',
-      layout: 'FULL_WIDTH',
+      layout: SectionLayout.FULL_WIDTH,
       content: {
         html: '<ul><li>Remote work options</li><li>Learning and development budget</li><li>Modern office with free snacks and drinks</li><li>Team building events</li></ul>',
       },
