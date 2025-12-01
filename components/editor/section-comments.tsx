@@ -129,13 +129,13 @@ export default function SectionComments({ sectionId, companySlug }: SectionComme
 
     setIsLoading(true)
     try {
-      // Extract mentions
+      // Extract mentions from content
       const mentionRegex = /@(\S+)/g
-      const mentions = []
-      let match
+      const mentions: string[] = []
+      let match: RegExpExecArray | null
       while ((match = mentionRegex.exec(newComment)) !== null) {
         const mentioned = teamMembers.find(m => 
-          m.name === match[1] || m.email === match[1]
+          m.name === match![1] || m.email === match![1]
         )
         if (mentioned) {
           mentions.push(mentioned.email)
