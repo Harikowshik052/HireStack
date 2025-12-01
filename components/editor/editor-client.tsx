@@ -60,6 +60,9 @@ interface Company {
   description: string | null
   slug: string
   isPublished: boolean
+  lastPublishedAt?: string | null
+  lastSavedAt?: string | null
+  publishedSnapshot?: any
   theme: Theme | null
   sections: Section[]
   jobs: any[]
