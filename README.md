@@ -1,6 +1,6 @@
 # Careers Page Customization Platform
 
-A powerful, customizable careers page builder for companies to create and manage their job listings with branded design, banner carousel, and team collaboration.
+A powerful, customizable Hire Stack for companies to create and manage their job listings with branded design, banner carousel, and team collaboration.
 
 ## 🚀 Features
 
@@ -8,7 +8,9 @@ A powerful, customizable careers page builder for companies to create and manage
 - 📝 **Dynamic Sections**: Drag-and-drop content sections with multi-column layouts  
 - 💼 **Job Management**: Add, edit, delete jobs with CSV bulk import
 - 👥 **Team Access Control**: Role-based permissions (Admin/Recruiter)
-- 🎬 **Media Support**: Banner carousel, video showcase with autoplay
+- 🎬 **Media Support**: Banner carousel, video showcase with autoplay (YouTube & direct videos)
+- 💬 **Collaboration**: Section comments with @mentions for team feedback
+- ⚡ **Performance**: Delta saving with change tracking (60-90% smaller payloads)
 - 📱 **Fully Responsive**: Mobile-first design with glassmorphism UI
 - 🔒 **Secure Authentication**: NextAuth.js with JWT
 - 🔔 **Toast Notifications**: Beautiful Sonner toast system
@@ -146,12 +148,26 @@ After login, go to `/{your-company-slug}/edit` to customize your careers page.
 - Go to the "Company Info" tab
 - Update company name and description
 
-#### 6. Save & Publish
-- Click "Save Changes" to save your edits
-- Click "Publish" to make the page live
-- Click "Preview" to see how it looks before publishing
+#### 6. Manage Jobs
+- Go to the "Job Roles" tab
+- Add individual jobs or import via CSV
+- Edit or delete existing jobs
+- Jobs appear on the public careers page when active
 
-#### 7. Share Your Page
+#### 7. Collaborate with Team
+- Click "Preview" to see your page with comment buttons
+- Comment on header, banner, sections, jobs, footer
+- Use @mentions to tag team members (type @ to see dropdown)
+- Comments are saved and visible to all team members
+- Only ADMINs can publish; RECRUITERs need approval
+
+#### 8. Save & Publish
+- Notice "Save (3)" button showing number of unsaved changes
+- Orange pulse dot indicates pending changes
+- Delta saving only sends modified fields (faster saves)
+- Click "Publish" to make the page live (ADMIN only)
+
+#### 9. Share Your Page
 Share the public URL: `https://yourdomain.com/{your-company-slug}/careers`
 
 ### For Candidates
@@ -186,10 +202,15 @@ careers-customization/
 │   └── ui/                    # Reusable UI components
 ├── docs/                      # Documentation
 │   ├── ARCHITECTURE.md       # System architecture
+│   ├── COLLABORATION.md      # Comment system & team features
 │   ├── DEPLOYMENT.md         # Deployment guide
+│   ├── PERFORMANCE_OPTIMIZATION.md # Delta saving details
 │   ├── PRODUCTION_READY.md   # Production checklist
 │   ├── SCALING_TOOLS.md      # Scaling guidelines
-│   └── SETUP.md              # Setup instructions
+│   ├── Tech_Spec.md          # Technical specifications
+│   ├── DEMO_SCRIPT.md        # Demo walkthrough
+│   ├── SCALING_ANSWERS.md    # Scaling Q&A
+│   └── AGENT_LOG.md          # AI assistance log
 ├── data/                      # Sample data
 │   ├── sample-jobs.csv       # Sample job listings
 │   └── job-template.csv      # CSV template for import
@@ -210,11 +231,12 @@ careers-customization/
 ## 🗄️ Database Schema
 
 **Key Models:**
-- \`User\` - Recruiter accounts with company association
+- \`User\` - Recruiter accounts with company association and role-based access
 - \`Company\` - Company profiles with slug for URLs
-- \`CompanyTheme\` - Brand colors, logo, banner, video
-- \`PageSection\` - Draggable content sections with ordering
+- \`CompanyTheme\` - Brand colors, logo, banners, video, fonts
+- \`PageSection\` - Draggable content sections with ordering and column layouts
 - \`Job\` - Job postings with filters and search
+- \`SectionComment\` - Team comments with @mentions on any section
 
 See \`prisma/schema.prisma\` for full schema details.
 
@@ -241,28 +263,40 @@ See \`prisma/schema.prisma\` for full schema details.
 2. Generate a new \`NEXTAUTH_SECRET\` for production
 3. Test authentication and page creation
 
-## 🔮 Future Enhancements
+## 🔮 Improvement Plan
 
-### Phase 1 (Next Sprint)
-- [ ] Rich text editor (TipTap) for section content
-- [ ] Image upload to Supabase Storage
-- [ ] Job application form and tracking
-- [ ] Email notifications for new applications
-- [ ] Analytics dashboard for page views
+### Short Term (1-2 weeks)
+- Add rich text formatting (bold, italic, lists) to sections
+- Preview mode before publishing
+- Undo/redo for section edits
+- Duplicate section feature
+- Job application form (collect resumes)
 
-### Phase 2 (Scaling)
-- [ ] Custom domains per company (Vercel API integration)
-- [ ] Team collaboration (multiple recruiters per company)
-- [ ] Section templates library
-- [ ] A/B testing for careers pages
-- [ ] Applicant tracking system (ATS) integration
+### Medium Term (1-2 months)
+- Image upload to cloud storage (currently uses external URLs)
+- Analytics dashboard (page views, job clicks)
+- Email notifications when someone applies
+- Custom domain mapping
+- SEO settings per company
+- Social media preview cards
 
-### Phase 3 (Enterprise)
-- [ ] Multi-language support
-- [ ] Advanced SEO tools (structured data, sitemaps)
-- [ ] Performance analytics
-- [ ] White-label solution
-- [ ] API for third-party integrations
+### Long Term (3-6 months)
+- Applicant tracking system (ATS) integration
+- Team collaboration (multiple recruiters)
+- A/B testing for page variants
+- Candidate portal (save jobs, track applications)
+- API for headless CMS usage
+- White-label option for agencies
+
+### Scaling for Growth
+- Move images to CDN (Cloudflare, AWS S3)
+- Add Redis caching for frequently accessed pages
+- Database read replicas for job searches
+- Implement rate limiting on API routes
+- Add monitoring (Sentry, LogRocket)
+- Optimize bundle size (currently ~200KB)
+- Horizontal scaling with load balancer
+- Separate database per tenant for large companies
 
 ## 🎨 Design Decisions
 

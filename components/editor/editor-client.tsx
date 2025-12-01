@@ -89,6 +89,14 @@ export default function EditorClient({ company: initialCompany }: EditorClientPr
     requirements: '',
     salary: '',
   })
+  
+  // Track what changed for optimized saving (more granular)
+  const [changedFields, setChangedFields] = useState<Set<string>>(new Set())
+  
+  // Helper to add theme change
+  const addThemeChange = (field: string) => {
+    setChangedFields(prev => new Set(prev).add(`theme.${field}`))
+  }
 
   const sensors = useSensors(
     useSensor(PointerSensor),
@@ -123,6 +131,7 @@ export default function EditorClient({ company: initialCompany }: EditorClientPr
           order: index,
         }))
       })
+      setChangedFields(prev => new Set(prev).add('sections'))
     }
   }
 
@@ -156,6 +165,7 @@ export default function EditorClient({ company: initialCompany }: EditorClientPr
       },
     ]
     setSections([...sections, ...newSections])
+    setChangedFields(prev => new Set(prev).add('sections'))
   }
 
   const handleAddToGroup = (groupId: number) => {
@@ -175,6 +185,7 @@ export default function EditorClient({ company: initialCompany }: EditorClientPr
       isVisible: true,
     }
     setSections([...sections, newSection])
+    setChangedFields(prev => new Set(prev).add('sections'))
   }
 
   const handleUngroupSections = (groupId: number) => {
@@ -184,6 +195,7 @@ export default function EditorClient({ company: initialCompany }: EditorClientPr
       }
       return s
     }))
+    setChangedFields(prev => new Set(prev).add('sections'))
   }
 
   const handleAddJob = () => {
@@ -204,6 +216,7 @@ export default function EditorClient({ company: initialCompany }: EditorClientPr
       ...company,
       jobs: [...company.jobs, job],
     })
+    setChangedFields(prev => new Set(prev).add('jobs'))
 
     // Reset form
     setNewJob({
@@ -217,6 +230,7 @@ export default function EditorClient({ company: initialCompany }: EditorClientPr
       salary: '',
     })
     setShowJobForm(false)
+    toast.success('Job added successfully')
   }
 
   const handleDeleteJob = (jobId: string) => {
@@ -225,6 +239,7 @@ export default function EditorClient({ company: initialCompany }: EditorClientPr
         ...company,
         jobs: company.jobs.filter(j => j.id !== jobId),
       })
+      setChangedFields(prev => new Set(prev).add('jobs'))
       toast.success('Job deleted successfully')
     }
   }
@@ -237,6 +252,7 @@ export default function EditorClient({ company: initialCompany }: EditorClientPr
         [field]: value,
       },
     })
+    addThemeChange(field)
   }
 
   const handleCompanyChange = (field: string, value: string) => {
@@ -244,6 +260,7 @@ export default function EditorClient({ company: initialCompany }: EditorClientPr
       ...company,
       [field]: value,
     })
+    setChangedFields(prev => new Set(prev).add('company'))
   }
 
   const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>, field: string) => {
@@ -302,31 +319,55 @@ export default function EditorClient({ company: initialCompany }: EditorClientPr
 
   const handleUpdateSection = (id: string, updates: Partial<Section>) => {
     setSections(sections.map(s => s.id === id ? { ...s, ...updates } : s))
+    setChangedFields(prev => new Set(prev).add('sections'))
   }
 
   const handleDeleteSection = (id: string) => {
     setSections(sections.filter(s => s.id !== id))
+    setChangedFields(prev => new Set(prev).add('sections'))
   }
 
   const handleSave = async () => {
+    if (changedFields.size === 0) {
+      toast.info('No changes to save')
+      return
+    }
+    
     setIsSaving(true)
     try {
+      // Only send what changed
+      const payload: any = {}
+      
+      if (changedFields.has('company')) {
+        payload.company = {
+          name: company.name,
+          description: company.description,
+          isPublished: company.isPublished,
+        }
+      }
+      
+      // Check if any theme field changed (theme.primaryColor, theme.backgroundColor, etc.)
+      const hasThemeChanges = Array.from(changedFields).some(field => field.startsWith('theme.'))
+      if (hasThemeChanges) {
+        payload.theme = company.theme
+      }
+      
+      if (changedFields.has('sections')) {
+        payload.sections = sections
+      }
+      
+      if (changedFields.has('jobs')) {
+        payload.jobs = company.jobs
+      }
+      
       const response = await fetch(`/api/companies/${company.slug}`, {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          company: {
-            name: company.name,
-            description: company.description,
-            isPublished: company.isPublished,
-          },
-          theme: company.theme,
-          sections,
-          jobs: company.jobs,
-        }),
+        body: JSON.stringify(payload),
       })
 
       if (response.ok) {
+        setChangedFields(new Set()) // Clear tracked changes
         toast.success('Changes saved successfully! 🎉')
         router.refresh()
       } else {
@@ -347,25 +388,33 @@ export default function EditorClient({ company: initialCompany }: EditorClientPr
     const newPublishState = !company.isPublished
     setCompany({ ...company, isPublished: newPublishState })
     
-    // Auto-save when publishing/unpublishing
+    // Auto-save when publishing/unpublishing - send all data since it's a publish action
     setIsSaving(true)
     try {
+      const payload: any = {
+        company: {
+          name: company.name,
+          description: company.description,
+          isPublished: newPublishState,
+        }
+      }
+      
+      // Send all other data if there are changes
+      if (changedFields.size > 0) {
+        const hasThemeChanges = Array.from(changedFields).some(field => field.startsWith('theme.'))
+        if (hasThemeChanges) payload.theme = company.theme
+        if (changedFields.has('sections')) payload.sections = sections
+        if (changedFields.has('jobs')) payload.jobs = company.jobs
+      }
+      
       const response = await fetch(`/api/companies/${company.slug}`, {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          company: {
-            name: company.name,
-            description: company.description,
-            isPublished: newPublishState,
-          },
-          theme: company.theme,
-          sections,
-          jobs: company.jobs,
-        }),
+        body: JSON.stringify(payload),
       })
 
       if (response.ok) {
+        setChangedFields(new Set()) // Clear tracked changes after publish
         if (newPublishState) {
           toast.success('Page Published! 🎉', {
             description: `Your careers page is now live at: ${window.location.origin}/${company.slug}/careers`,
@@ -421,18 +470,28 @@ export default function EditorClient({ company: initialCompany }: EditorClientPr
                     Preview
                   </Button>
                 </Link>
+                {company.currentUserRole === 'ADMIN' && (
+                  <Button 
+                    onClick={handlePublish} 
+                    variant={company.isPublished ? "outline" : "default"} 
+                    size="sm"
+                    className={company.isPublished ? "hover:bg-red-50 hover:text-red-600" : "hover:bg-green-600"}
+                  >
+                    <Globe className="mr-2 h-4 w-4" />
+                    {company.isPublished ? "Unpublish" : "Publish"}
+                  </Button>
+                )}
                 <Button 
-                  onClick={handlePublish} 
-                  variant={company.isPublished ? "outline" : "default"} 
-                  size="sm"
-                  className={company.isPublished ? "hover:bg-red-50 hover:text-red-600" : "hover:bg-green-600"}
+                  onClick={handleSave} 
+                  disabled={isSaving || changedFields.size === 0} 
+                  size="sm" 
+                  className="bg-primary hover:bg-primary/90 relative"
                 >
-                  <Globe className="mr-2 h-4 w-4" />
-                  {company.isPublished ? "Unpublish" : "Publish"}
-                </Button>
-                <Button onClick={handleSave} disabled={isSaving} size="sm" className="bg-primary hover:bg-primary/90">
                   <Save className="mr-2 h-4 w-4" />
-                  {isSaving ? "Saving..." : "Save"}
+                  {isSaving ? "Saving..." : changedFields.size > 0 ? `Save (${changedFields.size})` : "Saved"}
+                  {changedFields.size > 0 && (
+                    <span className="absolute -top-1 -right-1 h-3 w-3 bg-orange-500 rounded-full animate-pulse" />
+                  )}
                 </Button>
               </div>
 
@@ -466,13 +525,18 @@ export default function EditorClient({ company: initialCompany }: EditorClientPr
                         Preview
                       </Link>
                     </DropdownMenuItem>
-                    <DropdownMenuItem onClick={handlePublish}>
-                      {company.isPublished ? "Unpublish" : "Publish"}
-                    </DropdownMenuItem>
+                    {company.currentUserRole === 'ADMIN' && (
+                      <DropdownMenuItem onClick={handlePublish}>
+                        {company.isPublished ? "Unpublish" : "Publish"}
+                      </DropdownMenuItem>
+                    )}
                     <DropdownMenuSeparator />
-                    <DropdownMenuItem onClick={handleSave} disabled={isSaving}>
+                    <DropdownMenuItem onClick={handleSave} disabled={isSaving || changedFields.size === 0}>
                       <Save className="mr-2 h-4 w-4" />
-                      {isSaving ? "Saving..." : "Save Changes"}
+                      {isSaving ? "Saving..." : changedFields.size > 0 ? `Save Changes (${changedFields.size})` : "No Changes"}
+                      {changedFields.size > 0 && (
+                        <span className="ml-auto h-2 w-2 bg-orange-500 rounded-full" />
+                      )}
                     </DropdownMenuItem>
                   </DropdownMenuContent>
                 </DropdownMenu>

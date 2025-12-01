@@ -4,10 +4,20 @@ import { Button } from "@/components/ui/button"
 export default function HomePage() {
   return (
     <div className="flex min-h-screen flex-col">
-      <header className="border-b">
+      <header className="border-b bg-white/80 backdrop-blur-sm sticky top-0 z-50">
         <div className="container mx-auto flex h-16 items-center justify-between px-4">
-          <Link href="/">
-            <h1 className="text-xl font-bold cursor-pointer hover:text-primary transition-colors">Careers Page Builder</h1>
+          <Link href="/" className="flex items-center gap-2 group">
+            <div className="relative">
+              <div className="absolute inset-0 bg-gradient-to-r from-blue-500 to-purple-600 rounded-lg blur-sm group-hover:blur-md transition-all"></div>
+              <div className="relative bg-gradient-to-br from-blue-600 via-blue-500 to-purple-600 p-2 rounded-lg shadow-lg">
+                <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 13.255A23.931 23.931 0 0112 15c-3.183 0-6.22-.62-9-1.745M16 6V4a2 2 0 00-2-2h-4a2 2 0 00-2 2v2m4 6h.01M5 20h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+                </svg>
+              </div>
+            </div>
+            <h1 className="text-xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent cursor-pointer group-hover:scale-105 transition-transform">
+              HireStack
+            </h1>
           </Link>
           <nav className="flex gap-3">
             <Link href="/signup">
@@ -76,7 +86,7 @@ export default function HomePage() {
 
       <footer className="border-t py-6">
         <div className="container mx-auto px-4 text-center text-sm text-muted-foreground">
-          © 2024 Careers Page Builder. Built for recruiters.
+          © 2024 Hire Stack. Built for recruiters.
         </div>
       </footer>
     </div>

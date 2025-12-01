@@ -59,15 +59,20 @@ export async function PUT(
       return NextResponse.json({ error: "Company not found" }, { status: 404 })
     }
 
-    // Update company
-    await prisma.company.update({
-      where: { id: company.id },
-      data: {
-        name: companyData.name,
-        description: companyData.description,
-        isPublished: companyData.isPublished,
-      },
-    })
+    // Update company (only if company data is provided)
+    if (companyData) {
+      const updateData: any = {}
+      if (companyData.name !== undefined) updateData.name = companyData.name
+      if (companyData.description !== undefined) updateData.description = companyData.description
+      if (companyData.isPublished !== undefined) updateData.isPublished = companyData.isPublished
+      
+      if (Object.keys(updateData).length > 0) {
+        await prisma.company.update({
+          where: { id: company.id },
+          data: updateData,
+        })
+      }
+    }
 
     // Update or create theme
     if (theme) {

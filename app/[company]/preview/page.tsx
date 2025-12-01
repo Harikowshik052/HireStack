@@ -2,7 +2,7 @@ import { redirect } from "next/navigation"
 import { getServerSession } from "next-auth"
 import { authOptions } from "@/lib/auth"
 import { prisma } from "@/lib/prisma"
-import CareersPageClient from "@/components/careers/careers-page-client"
+import PreviewClient from "@/components/careers/preview-client"
 
 interface PreviewPageProps {
   params: {
@@ -44,9 +44,9 @@ export default async function PreviewPage({ params }: PreviewPageProps) {
   return (
     <div>
       <div className="bg-yellow-100 border-b border-yellow-200 py-2 px-4 text-center text-sm">
-        <strong>Preview Mode</strong> - This is how your careers page will look to candidates
+        <strong>Preview Mode</strong> - This is how your careers page will look to candidates. Comment buttons are visible for team collaboration.
       </div>
-      <CareersPageClient company={company} />
+      <PreviewClient company={company} />
     </div>
   )
 }

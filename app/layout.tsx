@@ -6,7 +6,7 @@ import { Toaster } from "sonner"
 const inter = Inter({ subsets: ["latin"] })
 
 export const metadata: Metadata = {
-  title: "Careers Page Builder",
+  title: "Hire Stack",
   description: "Build and customize branded careers pages for your company",
 }
 

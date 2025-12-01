@@ -1,8 +1,8 @@
-# Careers Page Builder - Architecture & Design Decisions
+# Hire Stack - Architecture & Design Decisions
 
 ## 🏗️ System Architecture Overview
 
-This document explains how the Careers Page Builder handles data isolation, user experience, safety, performance, and scalability.
+This document explains how the Hire Stack handles data isolation, user experience, safety, performance, and scalability.
 
 ---
 

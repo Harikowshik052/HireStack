@@ -82,12 +82,28 @@ model PageSection {
   columnGroup  Int           @default(0) @map("column_group") // Group sections together horizontally
   columnIndex  Int           @default(0) @map("column_index") // Position within the group (0 = left, 1 = middle, 2 = right)
   isVisible    Boolean       @default(true) @map("is_visible")
+  comments     SectionComment[]
   createdAt    DateTime      @default(now()) @map("created_at")
   updatedAt    DateTime      @updatedAt @map("updated_at")
 
   @@index([companyId, order])
   @@index([companyId, columnGroup, columnIndex])
   @@map("page_sections")
+}
+
+model SectionComment {
+  id          String      @id @default(cuid())
+  sectionId   String      @map("section_id")
+  section     PageSection @relation(fields: [sectionId], references: [id], onDelete: Cascade)
+  userEmail   String      @map("user_email") // Who commented
+  userName    String?     @map("user_name") // Display name
+  content     String      @db.Text
+  mentions    Json?       // Array of mentioned user emails
+  createdAt   DateTime    @default(now()) @map("created_at")
+  updatedAt   DateTime    @updatedAt @map("updated_at")
+
+  @@index([sectionId, createdAt])
+  @@map("section_comments")
 }
 
 enum SectionType {
