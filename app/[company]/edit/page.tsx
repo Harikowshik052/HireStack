@@ -48,6 +48,8 @@ export default async function EditPage({ params }: EditPageProps) {
 
   return <EditorClient company={{
     ...company,
+    lastPublishedAt: company.lastPublishedAt?.toISOString() || null,
+    lastSavedAt: company.lastSavedAt?.toISOString() || null,
     currentUserRole: currentUser.role,
     currentUserEmail: currentUser.email,
     currentUserName: currentUser.name
