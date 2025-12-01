@@ -145,11 +145,11 @@ export default function CareersPageClient({ company }: CareersPageClientProps) {
               rotationInterval={company.theme?.rotationInterval || 2000}
               className="h-[400px]"
             />
-            <div className="absolute inset-0 bg-black/40 flex items-center justify-center">
+            <div className="absolute inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center">
               <div className="container mx-auto px-4 text-center text-white">
-                <h1 className="text-5xl font-bold mb-4" style={{ fontFamily }}>Careers at {company.name}</h1>
+                <h1 className="text-5xl md:text-7xl font-bold mb-6 drop-shadow-2xl" style={{ fontFamily }}>{company.name}</h1>
                 {company.description && (
-                  <p className="text-xl max-w-2xl mx-auto opacity-90" style={{ fontFamily }}>{company.description}</p>
+                  <p className="text-lg md:text-xl max-w-4xl mx-auto drop-shadow-lg line-clamp-2" style={{ fontFamily }}>{company.description}</p>
                 )}
               </div>
             </div>
@@ -162,10 +162,10 @@ export default function CareersPageClient({ company }: CareersPageClientProps) {
               fontFamily
             }}
           >
-            <div className="container mx-auto px-4 text-center">
-              <h1 className="text-5xl font-bold mb-4" style={{ fontFamily }}>Careers at {company.name}</h1>
+            <div className="container mx-auto px-4 text-center max-w-4xl mx-auto">
+              <h1 className="text-5xl md:text-7xl font-bold mb-6 drop-shadow-2xl" style={{ fontFamily }}>{company.name}</h1>
               {company.description && (
-                <p className="text-xl max-w-2xl mx-auto opacity-90" style={{ fontFamily }}>{company.description}</p>
+                <p className="text-lg md:text-xl drop-shadow-lg line-clamp-2" style={{ fontFamily }}>{company.description}</p>
               )}
             </div>
           </div>

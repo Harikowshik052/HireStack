@@ -79,6 +79,10 @@ export default function EditorClient({ company: initialCompany }: EditorClientPr
   const [isSaving, setIsSaving] = useState(false)
   const [activeTab, setActiveTab] = useState("theme")
   const [showJobForm, setShowJobForm] = useState(false)
+  
+  // Calculate if there are saved changes that haven't been published
+  const hasSavedChanges = company.isPublished && company.lastSavedAt && company.lastPublishedAt && 
+    new Date(company.lastSavedAt) > new Date(company.lastPublishedAt)
   const [newJob, setNewJob] = useState({
     title: '',
     department: '',
@@ -336,10 +340,15 @@ export default function EditorClient({ company: initialCompany }: EditorClientPr
     setIsSaving(true)
     try {
       // Only send what changed
-      const payload: any = {}
+      const payload: any = {
+        company: {
+          lastSavedAt: new Date().toISOString(), // Always update lastSavedAt on save
+        }
+      }
       
       if (changedFields.has('company')) {
         payload.company = {
+          ...payload.company,
           name: company.name,
           description: company.description,
           isPublished: company.isPublished,
@@ -367,6 +376,8 @@ export default function EditorClient({ company: initialCompany }: EditorClientPr
       })
 
       if (response.ok) {
+        const savedAt = new Date().toISOString()
+        setCompany({ ...company, lastSavedAt: savedAt })
         setChangedFields(new Set()) // Clear tracked changes
         toast.success('Changes saved successfully! 🎉')
         router.refresh()
@@ -385,26 +396,43 @@ export default function EditorClient({ company: initialCompany }: EditorClientPr
   }
 
   const handlePublish = async () => {
-    const newPublishState = !company.isPublished
-    setCompany({ ...company, isPublished: newPublishState })
+    // If already published and has saved changes, this is a "republish" action
+    const isRepublish = company.isPublished && hasSavedChanges
     
-    // Auto-save when publishing/unpublishing - send all data since it's a publish action
+    // Determine the new publish state
+    const newPublishState = isRepublish ? true : !company.isPublished
+    
+    if (!isRepublish) {
+      setCompany({ ...company, isPublished: newPublishState })
+    }
+    
     setIsSaving(true)
     try {
+      // Create published snapshot when publishing/republishing
+      const publishedSnapshot = (isRepublish || (!company.isPublished && newPublishState)) ? {
+        theme: company.theme,
+        sections: sections,
+        jobs: company.jobs,
+      } : undefined
+      
       const payload: any = {
         company: {
           name: company.name,
           description: company.description,
           isPublished: newPublishState,
+          // Set lastPublishedAt and snapshot when publishing or republishing
+          ...(publishedSnapshot ? { 
+            lastPublishedAt: new Date().toISOString(),
+            publishedSnapshot: publishedSnapshot 
+          } : {}),
         }
       }
       
-      // Send all other data if there are changes
-      if (changedFields.size > 0) {
-        const hasThemeChanges = Array.from(changedFields).some(field => field.startsWith('theme.'))
-        if (hasThemeChanges) payload.theme = company.theme
-        if (changedFields.has('sections')) payload.sections = sections
-        if (changedFields.has('jobs')) payload.jobs = company.jobs
+      // For republish or new publish, send ALL current data (not just changes)
+      if (isRepublish || !company.isPublished) {
+        payload.theme = company.theme
+        payload.sections = sections
+        payload.jobs = company.jobs
       }
       
       const response = await fetch(`/api/companies/${company.slug}`, {
@@ -414,8 +442,15 @@ export default function EditorClient({ company: initialCompany }: EditorClientPr
       })
 
       if (response.ok) {
-        setChangedFields(new Set()) // Clear tracked changes after publish
-        if (newPublishState) {
+        const publishedAt = new Date().toISOString()
+        setCompany({ ...company, isPublished: newPublishState, lastPublishedAt: publishedAt })
+        setChangedFields(new Set()) // Clear tracked changes after publish/republish
+        if (isRepublish) {
+          toast.success('Changes Republished! 🚀', {
+            description: `Your latest changes are now live at: ${window.location.origin}/${company.slug}/careers`,
+            duration: 5000
+          })
+        } else if (newPublishState) {
           toast.success('Page Published! 🎉', {
             description: `Your careers page is now live at: ${window.location.origin}/${company.slug}/careers`,
             duration: 5000
@@ -427,12 +462,16 @@ export default function EditorClient({ company: initialCompany }: EditorClientPr
         }
         router.refresh()
       } else {
-        toast.error('Failed to update publish status')
-        setCompany({ ...company, isPublished: !newPublishState })
+        toast.error(isRepublish ? 'Failed to republish changes' : 'Failed to update publish status')
+        if (!isRepublish) {
+          setCompany({ ...company, isPublished: !newPublishState })
+        }
       }
     } catch (error) {
-      toast.error('Error updating publish status')
-      setCompany({ ...company, isPublished: !newPublishState })
+      toast.error(isRepublish ? 'Error republishing changes' : 'Error updating publish status')
+      if (!isRepublish) {
+        setCompany({ ...company, isPublished: !newPublishState })
+      }
     } finally {
       setIsSaving(false)
     }
@@ -471,15 +510,40 @@ export default function EditorClient({ company: initialCompany }: EditorClientPr
                   </Button>
                 </Link>
                 {company.currentUserRole === 'ADMIN' && (
-                  <Button 
-                    onClick={handlePublish} 
-                    variant={company.isPublished ? "outline" : "default"} 
-                    size="sm"
-                    className={company.isPublished ? "hover:bg-red-50 hover:text-red-600" : "hover:bg-green-600"}
-                  >
-                    <Globe className="mr-2 h-4 w-4" />
-                    {company.isPublished ? "Unpublish" : "Publish"}
-                  </Button>
+                  <>
+                    {company.isPublished ? (
+                      <>
+                        {hasSavedChanges && (
+                          <Button 
+                            onClick={handlePublish} 
+                            size="sm"
+                            className="bg-orange-600 hover:bg-orange-700"
+                          >
+                            <Globe className="mr-2 h-4 w-4" />
+                            Republish
+                          </Button>
+                        )}
+                        <Button 
+                          onClick={handlePublish} 
+                          variant="outline" 
+                          size="sm"
+                          className="hover:bg-red-50 hover:text-red-600 border-red-200"
+                        >
+                          <Globe className="mr-2 h-4 w-4" />
+                          Unpublish
+                        </Button>
+                      </>
+                    ) : (
+                      <Button 
+                        onClick={handlePublish} 
+                        size="sm"
+                        className="bg-green-600 hover:bg-green-700"
+                      >
+                        <Globe className="mr-2 h-4 w-4" />
+                        Publish
+                      </Button>
+                    )}
+                  </>
                 )}
                 <Button 
                   onClick={handleSave} 
@@ -526,9 +590,28 @@ export default function EditorClient({ company: initialCompany }: EditorClientPr
                       </Link>
                     </DropdownMenuItem>
                     {company.currentUserRole === 'ADMIN' && (
-                      <DropdownMenuItem onClick={handlePublish}>
-                        {company.isPublished ? "Unpublish" : "Publish"}
-                      </DropdownMenuItem>
+                      <>
+                        {company.isPublished ? (
+                          <>
+                            {changedFields.size > 0 && (
+                              <DropdownMenuItem onClick={handlePublish}>
+                                <Globe className="mr-2 h-4 w-4" />
+                                Republish Changes
+                                <span className="ml-auto h-2 w-2 bg-orange-500 rounded-full" />
+                              </DropdownMenuItem>
+                            )}
+                            <DropdownMenuItem onClick={handlePublish} className="text-red-600">
+                              <Globe className="mr-2 h-4 w-4" />
+                              Unpublish
+                            </DropdownMenuItem>
+                          </>
+                        ) : (
+                          <DropdownMenuItem onClick={handlePublish}>
+                            <Globe className="mr-2 h-4 w-4" />
+                            Publish
+                          </DropdownMenuItem>
+                        )}
+                      </>
                     )}
                     <DropdownMenuSeparator />
                     <DropdownMenuItem onClick={handleSave} disabled={isSaving || changedFields.size === 0}>

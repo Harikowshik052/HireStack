@@ -31,17 +31,20 @@ enum Role {
 }
 
 model Company {
-  id            String        @id @default(cuid())
-  slug          String        @unique
-  name          String
-  description   String?
-  isPublished   Boolean       @default(false) @map("is_published")
-  users         User[]
-  theme         CompanyTheme?
-  sections      PageSection[]
-  jobs          Job[]
-  createdAt     DateTime      @default(now()) @map("created_at")
-  updatedAt     DateTime      @updatedAt @map("updated_at")
+  id              String        @id @default(cuid())
+  slug            String        @unique
+  name            String
+  description     String?
+  isPublished     Boolean       @default(false) @map("is_published")
+  lastPublishedAt DateTime?     @map("last_published_at") // When was last published/republished
+  lastSavedAt     DateTime?     @map("last_saved_at") // When changes were last saved
+  publishedSnapshot Json?       @map("published_snapshot") // Snapshot of data when last published
+  users           User[]
+  theme           CompanyTheme?
+  sections        PageSection[]
+  jobs            Job[]
+  createdAt       DateTime      @default(now()) @map("created_at")
+  updatedAt       DateTime      @updatedAt @map("updated_at")
 
   @@map("companies")
 }

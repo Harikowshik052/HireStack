@@ -2,6 +2,10 @@ import { notFound } from "next/navigation"
 import { prisma } from "@/lib/prisma"
 import CareersPageClient from "@/components/careers/careers-page-client"
 
+// Disable caching for this page to ensure fresh data
+export const dynamic = 'force-dynamic'
+export const revalidate = 0
+
 interface CareersPageProps {
   params: {
     company: string
@@ -41,9 +45,22 @@ export default async function CareersPage({ params }: CareersPageProps) {
     },
   })
 
-  if (!company || !company.isPublished) {
+  // Only show if published AND has been published/republished at least once
+  if (!company || !company.isPublished || !company.lastPublishedAt) {
     notFound()
   }
 
-  return <CareersPageClient company={company} />
+  // Use published snapshot if available (shows last published version, not latest saves)
+  let displayData = company
+  if (company.publishedSnapshot) {
+    const snapshot = company.publishedSnapshot as any
+    displayData = {
+      ...company,
+      theme: snapshot.theme || company.theme,
+      sections: snapshot.sections || company.sections,
+      jobs: snapshot.jobs || company.jobs,
+    }
+  }
+  
+  return <CareersPageClient company={displayData} />
 }

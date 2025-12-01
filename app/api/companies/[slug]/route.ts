@@ -65,6 +65,9 @@ export async function PUT(
       if (companyData.name !== undefined) updateData.name = companyData.name
       if (companyData.description !== undefined) updateData.description = companyData.description
       if (companyData.isPublished !== undefined) updateData.isPublished = companyData.isPublished
+      if (companyData.lastPublishedAt !== undefined) updateData.lastPublishedAt = new Date(companyData.lastPublishedAt)
+      if (companyData.lastSavedAt !== undefined) updateData.lastSavedAt = new Date(companyData.lastSavedAt)
+      if (companyData.publishedSnapshot !== undefined) updateData.publishedSnapshot = companyData.publishedSnapshot
       
       if (Object.keys(updateData).length > 0) {
         await prisma.company.update({

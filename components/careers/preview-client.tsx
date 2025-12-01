@@ -154,26 +154,40 @@ export default function PreviewClient({ company }: PreviewClientProps) {
           />
         </div>
         {((company.theme?.bannerUrls as string[])?.length || 0) > 0 ? (
-          <BannerCarousel
-            banners={company.theme?.bannerUrls as string[]}
-            autoRotate={company.theme?.autoRotate ?? true}
-            rotationInterval={company.theme?.rotationInterval ?? 2000}
-            className="h-96"
-          />
+          <div className="relative h-96">
+            <BannerCarousel
+              banners={company.theme?.bannerUrls as string[]}
+              autoRotate={company.theme?.autoRotate ?? true}
+              rotationInterval={company.theme?.rotationInterval ?? 2000}
+              className="h-96"
+            />
+            <div className="absolute inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center">
+              <div className="text-center text-white px-4 z-10 max-w-4xl mx-auto">
+                <h1 className="text-5xl md:text-7xl font-bold mb-6 drop-shadow-2xl" style={{ fontFamily }}>{company.name}</h1>
+                {company.description && (
+                  <p className="text-lg md:text-xl drop-shadow-lg line-clamp-2" style={{ fontFamily }}>{company.description}</p>
+                )}
+              </div>
+            </div>
+          </div>
         ) : company.theme?.bannerUrl ? (
           <div className="relative h-96 bg-cover bg-center" style={{ backgroundImage: `url(${company.theme.bannerUrl})` }}>
-            <div className="absolute inset-0 bg-black bg-opacity-40 flex items-center justify-center">
-              <div className="text-center text-white px-4">
-                <h1 className="text-4xl md:text-5xl font-bold mb-4" style={{ fontFamily }}>Join Our Team</h1>
-                <p className="text-xl" style={{ fontFamily }}>{company.description || "Building the future together"}</p>
+            <div className="absolute inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center">
+              <div className="text-center text-white px-4 max-w-4xl mx-auto">
+                <h1 className="text-5xl md:text-7xl font-bold mb-6 drop-shadow-2xl" style={{ fontFamily }}>{company.name}</h1>
+                {company.description && (
+                  <p className="text-lg md:text-xl drop-shadow-lg line-clamp-2" style={{ fontFamily }}>{company.description}</p>
+                )}
               </div>
             </div>
           </div>
         ) : (
           <div className="relative h-96 flex items-center justify-center" style={{ backgroundColor: primaryColor }}>
-            <div className="text-center text-white px-4">
-              <h1 className="text-4xl md:text-5xl font-bold mb-4" style={{ fontFamily }}>Join Our Team</h1>
-              <p className="text-xl" style={{ fontFamily }}>{company.description || "Building the future together"}</p>
+            <div className="text-center text-white px-4 max-w-4xl mx-auto">
+              <h1 className="text-5xl md:text-7xl font-bold mb-6 drop-shadow-2xl" style={{ fontFamily }}>{company.name}</h1>
+              {company.description && (
+                <p className="text-lg md:text-xl drop-shadow-lg line-clamp-2" style={{ fontFamily }}>{company.description}</p>
+              )}
             </div>
           </div>
         )}
@@ -326,8 +340,8 @@ export default function PreviewClient({ company }: PreviewClientProps) {
                     </div>
                   </CardHeader>
                   <CardContent style={{ fontFamily }}>
-                    <p className="text-gray-600 mb-4">{job.description.slice(0, 200)}...</p>
-                    <Button style={{ backgroundColor: primaryColor, fontFamily }}>
+                    <p className="text-gray-600 mb-4 line-clamp-3">{job.description}</p>
+                    <Button className="mt-4" style={{ backgroundColor: secondaryColor, fontFamily }}>
                       View Details
                     </Button>
                   </CardContent>
@@ -339,7 +353,7 @@ export default function PreviewClient({ company }: PreviewClientProps) {
       </main>
 
       {/* Footer */}
-      <footer className="py-12 mt-16 relative border-t" style={{ backgroundColor: secondaryColor, color: '#FFFFFF' }}>
+      <footer className="bg-background border-t py-12 mt-16 relative">
         <div className="absolute right-4 top-4">
           <SectionComments 
             sectionId={`footer-${company.id}`}
@@ -349,37 +363,48 @@ export default function PreviewClient({ company }: PreviewClientProps) {
         <div className="container mx-auto px-4">
           <div className="grid md:grid-cols-3 gap-8">
             <div>
-              <h3 className="font-semibold mb-3" style={{ fontFamily }}>About {company.name}</h3>
-              <p className="text-sm opacity-90" style={{ fontFamily }}>
-                {company.description || "Join us in building something amazing."}
+              <div className="flex items-center gap-2 mb-3">
+                {company.theme?.logoUrl && (
+                  <img
+                    src={company.theme.logoUrl}
+                    alt={company.name}
+                    className="h-8 object-contain"
+                  />
+                )}
+                <span className="text-lg font-bold" style={{ color: primaryColor, fontFamily }}>
+                  {company.name}
+                </span>
+              </div>
+              <p className="text-sm text-muted-foreground" style={{ fontFamily }}>
+                {company.theme?.footerText || company.description || 'Join our team and help us build the future.'}
               </p>
             </div>
             <div>
               <h3 className="font-semibold mb-3" style={{ fontFamily }}>Quick Links</h3>
-              <ul className="space-y-2 text-sm">
+              <ul className="space-y-2 text-sm text-muted-foreground">
                 {company.theme?.footerLinks && company.theme.footerLinks.length > 0 ? (
                   (company.theme.footerLinks as Array<{label: string, url: string}>).map((link, index) => (
                     <li key={index}>
-                      <a href={link.url} className="opacity-90 hover:opacity-100" style={{ fontFamily }}>{link.label}</a>
+                      <a href={link.url} className="hover:text-gray-900" style={{ fontFamily }}>{link.label}</a>
                     </li>
                   ))
                 ) : (
                   <>
-                    <li><a href="#jobs" className="opacity-90 hover:opacity-100" style={{ fontFamily }}>Open Positions</a></li>
-                    <li><a href="#about" className="opacity-90 hover:opacity-100" style={{ fontFamily }}>About Us</a></li>
-                    <li><a href="#culture" className="opacity-90 hover:opacity-100" style={{ fontFamily }}>Culture</a></li>
+                    <li><a href="#jobs" className="hover:text-gray-900" style={{ fontFamily }}>Open Positions</a></li>
+                    <li><a href="#about" className="hover:text-gray-900" style={{ fontFamily }}>About Us</a></li>
+                    <li><a href="#culture" className="hover:text-gray-900" style={{ fontFamily }}>Culture</a></li>
                   </>
                 )}
               </ul>
             </div>
             <div>
               <h3 className="font-semibold mb-3" style={{ fontFamily }}>Contact</h3>
-              <p className="text-sm opacity-90" style={{ fontFamily }}>
-                {company.theme?.footerText || "Get in touch with us to learn more."}
+              <p className="text-sm text-muted-foreground" style={{ fontFamily }}>
+                Interested in joining our team? Check out our open positions.
               </p>
             </div>
           </div>
-          <div className="mt-8 pt-8 border-t border-white/20 text-center text-sm opacity-90" style={{ fontFamily }}>
+          <div className="border-t pt-6 text-center text-sm text-muted-foreground mt-8" style={{ fontFamily }}>
             © {new Date().getFullYear()} {company.name}. All rights reserved.
           </div>
         </div>
